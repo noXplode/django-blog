@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 py-5 mh-1000" >
+    {% if artiсles %}
+    {% if tag %}
+    <div class="row">
+        <h1>Articles filtered by tag: {{tag}}</h1>
+    </div>
+    {% endif %}
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 wow fadeIn">
+        {% for article in artiсles %}
+        <div class="col p-2">
+            <div class="card h-100 ">
+                <div class="view overlay">
+                    <img class="card-img-top"  src="{{article.image.url}}" alt="">
+                    <a href="{{ article.get_absolute_url }}" >
+                      <div class="mask rgba-white-slight"></div>
+                    </a>
+                </div>
+    
+                <div class="card-body">
+                    <h4 class="card-title">{{ article.title }}</h4>
+                    <p class="card-text">Published by: <strong>{{article.user}}</strong> on {{article.published|date}}</p>
+                    {% if article.tags.names %}
+                    {% for tag in article.tags.names %}
+                    <a href="{% url 'articles:tagfilter' tag=tag %}" class="badge badge-pill badge-secondary">{{tag}}</a>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="pagination row mt-5">
+        <div class="col text-center">
+            <span class="step-links">
+                {% if artiсles.has_previous %}
+                    <a href="?page=1">&laquo; first</a>
+                    <a href="?page={{ artiсles.previous_page_number }}">previous</a>
+                {% endif %}
+        
+                <span class="current">
+                    Page {{ artiсles.number }} of {{ artiсles.paginator.num_pages }}.
+                </span>
+        
+                {% if artiсles.has_next %}
+                    <a href="?page={{ artiсles.next_page_number }}">next</a>
+                    <a href="?page={{ artiсles.paginator.num_pages }}">last &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+
+  
+{% endblock %}
