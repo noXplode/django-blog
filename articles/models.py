@@ -13,7 +13,8 @@ class Article(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     published = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(upload_to='images/')
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
+    urlimage = models.URLField(blank=True, null=True)
     
 
     STATUS = (

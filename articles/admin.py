@@ -12,7 +12,7 @@ class ArticleAdmin(admin.ModelAdmin):
     }
     fieldsets = (
         ('Article', {
-            'fields': ('title', 'text', 'image', 'tags')
+            'fields': ('title', 'text', 'image', 'tags', 'urlimage')
         }),
         ('SEO', {
             'fields': ('seo_title', 'seo_description', 'slug')
