@@ -1,11 +1,12 @@
 {% extends "base.html" %}
 
 {% block title %}
-
+<title>{{ article.seo_title }} </title>
+<meta name="description" content="{{ article.seo_description }}">
 {% endblock %}
 
 {% block content %}
-<div class="container mt-5 py-5 mh-1000" >
+<div class="container mt-5 py-5 mh-1000 " >
     <h1>{{ article.title }}</h1>
     {{ article.text|safe }}
     {% if article.tags.names %}
@@ -16,8 +17,41 @@
         {% endfor %} </p> 
     </div>
     {% endif %}
-</div>
 
+    {% if article.comment_set.all %}
+    <section class="text-center text-lg-left">
+        
+        <div class="text-center font-weight-bold"><span>{{article.comment_set.all.count}}</span> comment{% if article.comment_set.all.count > 1 %}s{% endif %}</div>
+        
+        {% for comment in article.comment_set.all %}
+        <div class="media d-block d-md-flex mt-4">
+            <div class="media-body text-center text-md-left ml-md-3 ml-0">
+              <p class="font-weight-bold my-0">
+                {{comment.name}}
+              </p>
+              {{comment.text}}
+            </div>
+        </div>
+        {% endfor %}
+    </section>
+    {% endif %}
+
+    <div class="form-group mt-4">
+        <div class="text-center font-weight-bold"><span>Leave your comment</span></div>
+        <form action="" method="post">
+            {% csrf_token %}
+            <p>
+                {{ form.as_p }}
+            </p>
+            <div class="text-center my-4">
+                <input class="btn btn-secondary" type="submit" value="Send">
+            </div>
+        </form>
+    </div>
+
+
+
+</div>
 
   
 {% endblock %}

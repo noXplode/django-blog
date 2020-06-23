@@ -1,7 +1,15 @@
 from django.contrib import admin
-from .models import Article
+from .models import Article, Comment
 from django.db import models
 from django.forms import TextInput, Textarea
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('text', 'name', 'article', 'created', 'showing')
+
+class CommentsInline(admin.TabularInline):
+    model = Comment
+    extra  = 0
 
 @admin.register(Article)
 class ArticleAdmin(admin.ModelAdmin):
@@ -21,4 +29,7 @@ class ArticleAdmin(admin.ModelAdmin):
             'fields': ('user', 'published', 'status'),
         }),
     )
-    list_display = ('title', 'status', 'slug', 'user', 'published')
+    list_display = ('title', 'status', 'slug', 'user')
+    list_filter = ('status', 'user')
+    search_fields = ('title', 'text', 'seo_description')
+    inlines = [CommentsInline]
