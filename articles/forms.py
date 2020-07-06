@@ -10,3 +10,10 @@ class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('name', 'text')
+
+class SearchForm(forms.Form):
+    search_string = forms.CharField(label='search field', max_length=100)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['search_string'].widget.attrs.update({'class': 'form-control', 'type': 'text', 'placeholder': 'Search', 'aria-label': 'Search'})

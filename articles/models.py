@@ -40,6 +40,10 @@ class Article(models.Model):
     def get_absolute_url(self):
         return reverse('articles:viewpost', args=[self.slug])
 
+    def get_similar_posts(self):
+        return self.tags.similar_objects()[:3]
+        
+
 class Comment(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)

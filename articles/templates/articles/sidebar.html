@@ -1,0 +1,33 @@
+
+<div class="card border-secondary mt-2">
+    <div class="card-body px-2 py-3">
+        <!-- Search form -->
+        <form class="text-center">
+            <div class="active-purple-3">
+                {{ form.non_field_errors }}
+                {{ form.search_string.errors }}
+                {{ form.search_string }}
+            </div>
+            
+            <button class="btn btn-outline-secondary btn-rounded btn-sm" type="submit">Search</button>
+        </form>
+    </div>
+</div>
+<div class="card border-secondary mt-2">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Popular tags</h5>
+        {% for tag in popular_tags %}
+        <a href="{% url 'articles:tagfilter' tag=tag %}" class="badge badge-pill badge-secondary card-text">{{tag}}</a>
+        {% endfor %}
+    </div>
+</div>
+<div class="card border-secondary mt-2">
+    <div class="card-body">
+        <h5 class="card-title mb-3">Latest comments</h5>
+        <ul class="list-group list-group-flush">
+            {% for comment in latest_comments %}
+            <li class="list-group-item p-1"><a href="{{ comment.article.get_absolute_url }}" class="card-text"><strong>{{comment.name}}</strong> on {{comment.article}}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
