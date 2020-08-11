@@ -1,8 +1,8 @@
-
+{% load sidebar_tags %}
 <div class="card border-secondary mt-2">
     <div class="card-body px-2 py-3">
         <!-- Search form -->
-        <form class="text-center">
+        <form method="get" class="text-center">
             <div class="active-purple-3">
                 {{ form.non_field_errors }}
                 {{ form.search_string.errors }}
@@ -13,21 +13,29 @@
         </form>
     </div>
 </div>
+
+{% populartags as poptags %}
+{% if poptags %}    <!-- Popular tags block -->
 <div class="card border-secondary mt-2">
     <div class="card-body">
         <h5 class="card-title mb-3">Popular tags</h5>
-        {% for tag in popular_tags %}
+        {% for tag in poptags %}
         <a href="{% url 'articles:tagfilter' tag=tag %}" class="badge badge-pill badge-secondary card-text">{{tag}}</a>
         {% endfor %}
     </div>
 </div>
+{% endif %}
+
+{% latestcomments qt=4 as comments %} 
+{% if comments %}   <!-- Last comments block -->
 <div class="card border-secondary mt-2">
     <div class="card-body">
         <h5 class="card-title mb-3">Latest comments</h5>
         <ul class="list-group list-group-flush">
-            {% for comment in latest_comments %}
+            {% for comment in comments %}
             <li class="list-group-item p-1"><a href="{{ comment.article.get_absolute_url }}" class="card-text"><strong>{{comment.name}}</strong> on {{comment.article}}</a></li>
             {% endfor %}
         </ul>
     </div>
 </div>
+{% endif %}

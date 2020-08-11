@@ -12,31 +12,22 @@ from django.db.models import Q
 # main page
 def index(request, tag=None):
 
-    popular_tags = getpopulartags()
-    latest_comments = Comment.objects.filter(showing = True)[:5]
-    
-    context = { 
-            'popular_tags' : popular_tags,
-            'latest_comments' : latest_comments,
-        }
-
-    if request.GET:
+    if request.GET:     #if searching
         form = SearchForm(request.GET)
-        if form.is_valid() and 'search_string' in form.cleaned_data:
+        if form.is_valid() and 'search_string' in form.cleaned_data:    #if GET contains search data
             search_string = form.cleaned_data['search_string']
             search_result = get_search_result(search_string)
         
-            contextsearch = {
+            context = {
                 'search_string' : search_string, 
                 'artiсles' : search_result,
                 'form' : form,
             }
-            context.update(contextsearch)
             return render(request, 'articles/search.html', context=context)
         else:
-            return HttpResponseRedirect(reverse('articles:index') )
+            return HttpResponseRedirect(reverse('articles:index') )     #if not redirect to articles
 
-    else:
+    else:   #if no search
         form = SearchForm()
 
         artiсles = Article.objects.filter(status = 'p')
@@ -44,42 +35,23 @@ def index(request, tag=None):
         if tag:
             artiсles = artiсles.filter(tags__name__in=[tag])
 
-        paginator = Paginator(artiсles, 6) # Show 25 contacts per page.
+        paginator = Paginator(artiсles, 6) # Show 6 articles per page.
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
 
-        contextblog = { 
+        context = { 
             'artiсles' : page_obj,
             'tag' : tag,
             'form' : form,
         }
-        context.update(contextblog)
-
         return render(request, 'articles/blog.html', context=context)
 
-def getpopulartags():
-    artiсles = Article.objects.filter(status = 'p')[:30]
-    tagscount = {}
-    poptags = []
-    for article in artiсles:
-        t = article.tags.names()
-        for tag in t:
-            if tag in tagscount:
-                tagscount[tag] += 1
-            else:
-                tagscount[tag] = 1
-    #print(tagscount)
-    for key in tagscount:
-        if tagscount[key] > 1:
-            poptags.append(key)
-    return poptags
-
-def get_search_result(phrase):
+def get_search_result(phrase):  #simple articles search method
     words = phrase.split(' ')
-    temp = Article.objects.none() #empty set
+    temp = Article.objects.none() #empty queryset
     for word in words:
         obj_list = Article.objects.filter(Q(text__icontains=word) | Q(title__icontains=word)).distinct()
-        obj_list.union(temp)
+        obj_list.union(temp)    #adding found articles to empty queryset
     return list(set(obj_list))
 
 # article page

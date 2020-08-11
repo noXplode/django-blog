@@ -41,11 +41,11 @@ class Article(models.Model):
     def get_absolute_url(self):
         return reverse('articles:viewpost', args=[self.slug])
 
-    def get_similar_posts(self):
-        return self.tags.similar_objects()[:3]
+    def get_similar_posts(self):    
+        return self.tags.similar_objects()[:3]  #inherited from taggit
 
     def get_nonparent_comments(self):
-        return self.comment_set.filter(parent__isnull=True)
+        return self.comment_set.filter(parent__isnull=True) #comments without replies
         
 
 class Comment(models.Model):
