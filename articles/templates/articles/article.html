@@ -43,17 +43,33 @@
     {% endif %}
 
     {% if article.comment_set.all %}    <!-- Comments -->
-    <section class="text-center text-lg-left mt-2">
+    <section class="text-left mt-2">
         
         <div class="text-center font-weight-bold"><span>{{article.comment_set.all.count}}</span> comment{% if article.comment_set.all.count > 1 %}s{% endif %}</div>
         
-        {% for comment in article.comment_set.all %}
-        <div class="media d-block d-md-flex mt-4">
-            <div class="media-body text-center text-md-left ml-md-3 ml-0">
-              <p class=" my-0">
-                <span class="font-weight-bold">{{comment.name}}</span> commented on {{comment.created|date}}
-              </p>
-              {{comment.text}}
+        {% for comment in article.get_nonparent_comments %}
+        <div class="media d-block d-md-flex mt-3">
+            <div class="media-body text-left ml-md-3 ml-0 my-2">
+                <p class="my-0">
+                    <span class="font-weight-bold">{{comment.name}}</span> commented on {{comment.created|date}}
+                </p>
+                {{comment.text}}
+                <p class="my-0 ml-4">
+                    <a href="#commentForm" onclick="addparent( '{{comment.pk}}', '{{comment.name}}' )">Reply</a>
+                </p>
+                {% for child in comment.comment_set.all %}
+                
+                <div class="media-body text-left ml-5 my-2">
+                    <p class=" my-0">
+                        <span class="font-weight-bold">{{child.name}}</span> commented on {{child.created|date}}
+                    </p>
+                    {{child.text}}
+                    <p class="my-0 ml-4">
+                        <a href="#commentForm" onclick="addparent( '{{comment.pk}}', '{{child.name}}' )">Reply</a>
+                    </p>
+                </div>
+                
+                {% endfor %}
             </div>
         </div>
         {% endfor %}
@@ -61,16 +77,30 @@
     {% endif %}
 
     <div class="form-group mt-4">   <!-- Comment form -->
-        <div class="text-center font-weight-bold"><span>Leave your comment</span></div>
-        <form action="" method="post">
+        <div class="text-center font-weight-bold" id="commentheader" ><span>Leave your comment</span></div>
+        <form action="" method="post" id="commentForm">
             {% csrf_token %}
+            <input type="hidden" name="parent" id="parent_pk" value="">
             <p>
                 {{ form.as_p }}
             </p>
             <div class="text-center my-4">
+                <input class="btn btn-light" type="reset" value="Cancel" onclick="noparent()">
                 <input class="btn btn-secondary" type="submit" value="Send">
             </div>
         </form>
     </div>
+    <script>
+        function addparent(id, name) {
+            document.getElementById("parent_pk").value = id;
+            document.getElementById("commentheader").innerHTML = '<span>Reply to ' + name + '<span>';
+            document.getElementById("id_text").value = name + ', '
+        }
+        function noparent() {
+            document.getElementById("parent_pk").value = null;
+            document.getElementById("commentheader").innerHTML = '<span>Leave your comment</span>';
+            document.getElementById("id_text").value = ''
+        }
+    </script>
 </div>
 {% endblock %}

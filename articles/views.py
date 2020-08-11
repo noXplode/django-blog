@@ -95,12 +95,18 @@ class ArticleView(FormMixin, generic.DetailView):   #https://docs.djangoproject.
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
-            return self.form_valid(form)
+            if request.POST.get('parent', None):
+                parent_id = request.POST.get('parent')
+                return self.form_valid(form, parent_id)
+            else:
+                return self.form_valid(form)
         else:
             return self.form_invalid(form)
 
-    def form_valid(self, form):
+    def form_valid(self, form, parent_id=None):
         new_comment = form.save(commit=False)
         new_comment.article = self.object
+        if parent_id:
+            new_comment.parent = Comment.objects.get(pk=parent_id)
         new_comment.save()
         return super().form_valid(form)

@@ -32,4 +32,20 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ('title', 'status', 'slug', 'user')
     list_filter = ('status', 'user')
     search_fields = ('title', 'text', 'seo_description')
+    actions = ['publish', 'unpublish', 'unpublish_to_draft']
     inlines = [CommentsInline]
+
+    def publish(self, request, queryset):
+        row_update = queryset.update(status = 'p')
+        message_str = f'{row_update} rows updated'
+        self.message_user(request, message_str)
+
+    def unpublish_to_draft(self, request, queryset):
+        row_update = queryset.update(status = 'd')
+        message_str = f'{row_update} rows updated'
+        self.message_user(request, message_str)
+
+    def unpublish(self, request, queryset):
+        row_update = queryset.update(status = 'r')
+        message_str = f'{row_update} rows updated'
+        self.message_user(request, message_str)

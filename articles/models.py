@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from taggit.managers import TaggableManager
+from ckeditor.fields import RichTextField
 
 class Article(models.Model):
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
@@ -9,7 +10,7 @@ class Article(models.Model):
     seo_title = models.CharField(max_length=200)
     seo_description = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
-    text = models.TextField()
+    text = RichTextField()
     created = models.DateTimeField(auto_now_add=True)
     published = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(upload_to='images/', blank=True)
@@ -42,6 +43,9 @@ class Article(models.Model):
 
     def get_similar_posts(self):
         return self.tags.similar_objects()[:3]
+
+    def get_nonparent_comments(self):
+        return self.comment_set.filter(parent__isnull=True)
         
 
 class Comment(models.Model):
@@ -50,9 +54,10 @@ class Comment(models.Model):
     text = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     showing = models.BooleanField(default=True)
+    parent = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
-        ordering = ('-created',)
+        ordering = ('created',)
 
     def __str__(self):
         return self.text
