@@ -26,7 +26,7 @@
                         </div>
             
                         <div class="card-body">
-                            <h4 class="card-title mb-1">{{ article.title }}</h4>
+                            <h4 class="card-title mb-1"><a class="text-body" href="{{ article.get_absolute_url }}">{{ article.title }}</a></h4>
                             <p class="card-text mb-1">Published by: <strong>{{article.user}}</strong> on {{article.published|date}}</p>
                             <p class="card-text mb-1">{{article.comment_set.all.count}} comments</p>
                             {% if article.tags.names %}

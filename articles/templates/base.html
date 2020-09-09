@@ -39,7 +39,9 @@
                 <span class="sr-only">(current)</span>
               </a>
             </li>
+            {% if user.is_authenticated %}
             <li class="nav-item "><a class="nav-link" href="{% url 'admin:index' %}" data-offset="90">Admin</a></li> 
+            {% endif %}
   
           </ul>
         </div>
