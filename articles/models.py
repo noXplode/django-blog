@@ -46,7 +46,7 @@ class Article(models.Model):
         return self.tags.similar_objects()[:3]  # inherited from taggit
 
     def get_nonparent_comments(self):
-        return self.comment_set.filter(parent__isnull=True)  # comments without replies
+        return self.comment_set.filter(parent__isnull=True)  # non replies comments
 
 
 class Comment(models.Model):

@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from django.views.generic.edit import FormMixin
 from django.urls import reverse
 from django.db.models import Q
+from django.http import Http404
 
 
 # main page
@@ -36,6 +37,8 @@ def index(request, tag=None):
 
         paginator = Paginator(artiсles, 6)  # Show 6 articles per page.
         page_number = request.GET.get('page')
+        if page_number is not None and int(page_number) > paginator.num_pages:
+            raise Http404()
         page_obj = paginator.get_page(page_number)
 
         context = {
