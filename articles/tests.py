@@ -2,6 +2,27 @@ from django.test import TestCase
 from .models import Article, Comment
 from .views import get_search_result
 from django.urls import reverse
+import factory
+from factory.django import DjangoModelFactory
+
+
+class ArticleFactory(DjangoModelFactory):
+    class Meta:
+        model = Article
+
+    title = 'Test Article title'
+    slug = factory.Sequence(lambda n: f'test_slug_{n}')
+    text = 'Test Acticle text'
+    status = 'p'    # published
+
+
+class CommentFactory(DjangoModelFactory):
+    class Meta:
+        model = Comment
+
+    article = factory.SubFactory(ArticleFactory)
+    name = 'Test Name'
+    text = 'Test Comment text'
 
 
 class ArticleModelTests(TestCase):
@@ -10,14 +31,14 @@ class ArticleModelTests(TestCase):
         """
         __str__() must return title
         """
-        article = Article(title='This is a title')
-        self.assertEqual(article.__str__(), 'This is a title')
+        article = ArticleFactory()
+        self.assertEqual(article.__str__(), ArticleFactory.title)
 
     def test_get_absolute_url_method(self):
         """
         get_absolute_url() returns article url
         """
-        article = Article(title='This is a title', slug='article_clug_test')
+        article = ArticleFactory()
         response = reverse('articles:viewpost', args=[article.slug])
         self.assertEqual(article.get_absolute_url(), response)
 
@@ -25,10 +46,9 @@ class ArticleModelTests(TestCase):
         """
         get_nonparent_comments() returns non replies comments
         """
-        article = Article(title='This is a title', slug='article_clug_test')
-        article.save()
-        article.comment_set.create(name='test', text='test')
-        article.comment_set.create(name='test', text='test', parent=Comment.objects.get(pk=1))
+        article = ArticleFactory()
+        comment = CommentFactory.create(article=article)
+        comment2 = CommentFactory.create(article=article, parent=comment)
         self.assertEqual(len(article.get_nonparent_comments()), 1)
 
 
@@ -38,29 +58,18 @@ class CommentModelTests(TestCase):
         """
         __str__() must return comment test
         """
-        article = Article(title='This is a title')
-        article.save()
-        comm = Comment(article=article, name='test', text='test comment text')
-        self.assertEqual(comm.__str__(), 'test comment text')
+        comm = CommentFactory()
+        self.assertEqual(comm.__str__(), CommentFactory.text)
 
 
 class ViewsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # Create 7 articles for pagination tests
-        number_of_posts = 7
-
-        for post in range(number_of_posts):
-            Article.objects.create(title=f'This is a title {post}',
-                                   slug=f'article_slug_test_{post}',
-                                   text=f'Acticle text {post}',
-                                   status='p')
-        testarticle = Article.objects.create(title='This is a title',
-                                             slug='article_slug_test',
-                                             text='New text',
-                                             status='p')
-        testarticle.tags.add('test')
+        # Create 7+1 articles for pagination tests
+        ArticleFactory.create_batch(7)
+        another_article = ArticleFactory(text='new test')
+        another_article.tags.add('test')
 
     def test_index_template(self):
         """
@@ -97,12 +106,12 @@ class ViewsTests(TestCase):
     def test_index_with_search(self):
         """
         when searching index() uses articles/search.html template
-        text is found 8 times on test articles
+        text must be found 7 times on test articles
         """
         response = self.client.get(reverse('articles:index') + '?search_string=text')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "articles/search.html")
-        self.assertTrue(len(response.context['artiсles']) == 8)
+        self.assertTrue(len(response.context['artiсles']) == 7)
 
     def test_index_template_with_tag(self):
         """
@@ -119,7 +128,7 @@ class ViewsTests(TestCase):
         """
         Search for phrase test
         """
-        self.assertEqual(len(get_search_result('text')), 8)
+        self.assertEqual(len(get_search_result('text')), 7)
         self.assertEqual(len(get_search_result('new')), 1)
 
     def test_articleview_template(self):
@@ -146,9 +155,7 @@ class ViewsTests(TestCase):
         form must be valid with child test comment
         """
         article = Article.objects.get(pk=1)
-        comment = Comment.objects.create(article=article,
-                                         name='test name',
-                                         text='test comment text')
+        comment = CommentFactory(article=article)
         data = {'name': 'test name', 'text': 'test comment text', 'parent': comment.pk}
         response = self.client.post(reverse('articles:viewpost', args=[article.slug]), data)
         self.assertEqual(response.status_code, 302)
