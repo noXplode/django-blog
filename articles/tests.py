@@ -1,15 +1,27 @@
-from django.test import TestCase
 from .models import Article, Comment
 from .views import get_search_result
+
+from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
+
 import factory
 from factory.django import DjangoModelFactory
+
+
+class UserFactory(DjangoModelFactory):
+    class Meta:
+        model = User
+
+    username = factory.Sequence(lambda n: f'user_{n}')
+    password = 'example'
 
 
 class ArticleFactory(DjangoModelFactory):
     class Meta:
         model = Article
 
+    user = factory.SubFactory(UserFactory)
     title = 'Test Article title'
     slug = factory.Sequence(lambda n: f'test_slug_{n}')
     text = 'Test Acticle text'
