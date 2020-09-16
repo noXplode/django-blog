@@ -44,7 +44,7 @@ class ArticleModelTests(TestCase):
         __str__() must return title
         """
         article = ArticleFactory()
-        self.assertEqual(article.__str__(), ArticleFactory.title)
+        self.assertEqual(article.__str__(), article.title)
 
     def test_get_absolute_url_method(self):
         """
@@ -71,7 +71,7 @@ class CommentModelTests(TestCase):
         __str__() must return comment test
         """
         comm = CommentFactory()
-        self.assertEqual(comm.__str__(), CommentFactory.text)
+        self.assertEqual(comm.__str__(), comm.text)
 
 
 class ViewsTests(TestCase):
