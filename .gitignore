@@ -4,3 +4,5 @@ env/
 static/
 __pycache__/
 *.pyc
+.env
+*.sqlite3
